@@ -59,7 +59,7 @@ class FlaskRedis(object):
         else:
             startup_nodes = app.config.get("REDIS_NODES", False)
             if not startup_nodes:
-                self._redis_client = Redis.from_url(
+                self._redis_client = redis.Redis.from_url(
                     redis_url, db=database
                 )
             else:
