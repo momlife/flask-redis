@@ -55,12 +55,15 @@ class FlaskRedis(object):
             self._redis_client = self.provider_class.from_url(
                 redis_url, db=database
             )
+
         else:
             startup_nodes = app.config.get("REDIS_NODES", False)
             if not startup_nodes:
-                raise Exception("RedisCluster is enabled, but setting REDIS_NODES not provided")
-
-            self._redis_client = self.provider_class(startup_nodes=startup_nodes)
+                self._redis_client = self.provider_class.from_url(
+                    redis_url, db=database
+                )
+            else:
+                self._redis_client = self.provider_class(startup_nodes=startup_nodes)
 
         # RedisCluster(startup_nodes=startup_nodes=startup_nodes)
 
