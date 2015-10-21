@@ -1,3 +1,5 @@
+from rediscluster import RedisCluster
+
 import warnings
 try:
     import redis
@@ -49,9 +51,18 @@ class FlaskRedis(object):
                 DeprecationWarning,
             )
 
-        self._redis_client = self.provider_class.from_url(
-            redis_url, db=database
-        )
+        if isinstance(self.provider_class, redis.Redis) or isinstance(self.provider_class, redis.StrictRedis):
+            self._redis_client = self.provider_class.from_url(
+                redis_url, db=database
+            )
+        else:
+            startup_nodes = app.config.get("REDIS_NODES", False)
+            if not startup_nodes:
+                raise Exception("RedisCluster is enabled, but setting REDIS_NODES not provided")
+
+            self._redis_client = self.provider_class(startup_nodes=startup_nodes)
+
+        # RedisCluster(startup_nodes=startup_nodes=startup_nodes)
 
         if not hasattr(app, 'extensions'):
             app.extensions = {}
